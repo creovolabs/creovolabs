@@ -50,7 +50,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="section-pad bg-cream text-[#111111]">
+    <section id="services" className="section-pad bg-white text-[#111111]">
       <div className="section-container">
         <div className="mb-16 grid items-end gap-8 lg:grid-cols-2 lg:gap-16">
           <div>

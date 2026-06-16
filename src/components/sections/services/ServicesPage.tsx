@@ -131,38 +131,11 @@ function BestForList({ items }: { items: string[] }) {
 export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState("s01");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const tabNavRef = useRef<HTMLDivElement>(null);
   const skipNavScrollRef = useRef(true);
 
-  const scrollToSection = useCallback((id: string) => {
-    const el = sectionRefs.current[id];
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
-
   const toggleFaq = useCallback((index: number) => {
     setOpenFaq((prev) => (prev === index ? null : index));
-  }, []);
-
-  useEffect(() => {
-    const sections = serviceTabs
-      .map((t) => sectionRefs.current[t.id])
-      .filter(Boolean) as HTMLElement[];
-    if (!sections.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3, rootMargin: "-120px 0px -40% 0px" }
-    );
-
-    sections.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -239,13 +212,19 @@ export default function ServicesPage() {
             <div
               ref={tabNavRef}
               className="flex overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory lg:overflow-visible"
+              role="tablist"
+              aria-label="Services"
             >
               {serviceTabs.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
+                  role="tab"
+                  id={`tab-${tab.id}`}
+                  aria-selected={activeTab === tab.id}
+                  aria-controls={tab.id}
                   data-tab-id={tab.id}
-                  onClick={() => scrollToSection(tab.id)}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`group relative flex shrink-0 snap-start items-center gap-3 border-r border-[#111111]/[0.07] px-5 py-5 text-left transition-colors last:border-r-0 sm:px-7 lg:flex-1 ${
                     activeTab === tab.id
                       ? "bg-accent/[0.03] text-[#111111]"
@@ -270,11 +249,11 @@ export default function ServicesPage() {
         </div>
 
         {/* Service 01 */}
+        {activeTab === "s01" && (
         <section
           id="s01"
-          ref={(el) => {
-            sectionRefs.current.s01 = el;
-          }}
+          role="tabpanel"
+          aria-labelledby="tab-s01"
           className="scroll-mt-16 section-pad bg-cream"
         >
           <div className="section-container">
@@ -358,15 +337,14 @@ export default function ServicesPage() {
             </div>
           </div>
         </section>
-
-        <div className="h-px bg-gradient-to-r from-transparent via-[#111111]/8 to-transparent" />
+        )}
 
         {/* Service 02 */}
+        {activeTab === "s02" && (
         <section
           id="s02"
-          ref={(el) => {
-            sectionRefs.current.s02 = el;
-          }}
+          role="tabpanel"
+          aria-labelledby="tab-s02"
           className="scroll-mt-16 section-pad bg-white"
         >
           <div className="section-container">
@@ -449,15 +427,14 @@ export default function ServicesPage() {
             </Reveal>
           </div>
         </section>
-
-        <div className="h-px bg-gradient-to-r from-transparent via-[#111111]/8 to-transparent" />
+        )}
 
         {/* Service 03 */}
+        {activeTab === "s03" && (
         <section
           id="s03"
-          ref={(el) => {
-            sectionRefs.current.s03 = el;
-          }}
+          role="tabpanel"
+          aria-labelledby="tab-s03"
           className="scroll-mt-16 section-pad bg-cream"
         >
           <div className="section-container">
@@ -550,6 +527,7 @@ export default function ServicesPage() {
             </div>
           </div>
         </section>
+        )}
 
         {/* Matrix */}
         <section className="bg-[#111111] py-24 md:py-28">
