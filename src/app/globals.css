@@ -91,7 +91,27 @@ body {
   }
 
   .section-heading em {
-    @apply font-normal not-italic text-[#111111]/70;
+    @apply font-normal not-italic;
+  }
+
+  .section-heading:not(.text-white) em:not([class*="text-"]) {
+    @apply text-[#111111]/70;
+  }
+
+  .section-heading.text-white em:not([class*="text-"]) {
+    @apply text-white/70;
+  }
+
+  #contact,
+  #process,
+  #clients,
+  #engagements,
+  #services {
+    scroll-margin-top: 5.5rem;
+  }
+
+  #faq {
+    scroll-margin-top: 7rem;
   }
 
   .section-body {
@@ -118,11 +138,12 @@ body {
     @apply -translate-y-1 scale-[1.02] border-[#ff6600]/25 bg-white/[0.05] shadow-[0_12px_48px_rgba(255,102,0,0.12)];
   }
 
-  /* Full-viewport bleed — clip edge is the screen, not the content column */
+  /* Full-viewport bleed without 100vw horizontal overflow */
   .process-scroll-outer {
-    width: 100vw;
-    max-width: 100vw;
     margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: auto;
+    max-width: 100vw;
     overflow: visible;
   }
 

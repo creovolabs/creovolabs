@@ -1,7 +1,34 @@
 "use client";
 
+import type { ReactNode } from "react";
+import Link from "next/link";
 import Logo from "@/components/brand/Logo";
 import Reveal, { RevealItem, RevealStagger } from "@/components/ui/Reveal";
+import { contactEmail, contactPhone, contactPhoneHref, footerLinks } from "@/lib/site";
+
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: ReactNode;
+}) {
+  const className = "text-sm text-white/50 transition hover:text-white";
+
+  if (href.startsWith("mailto:") || href.startsWith("tel:")) {
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  );
+}
 
 export default function Footer() {
   return (
@@ -18,49 +45,38 @@ export default function Footer() {
         </Reveal>
 
         <RevealStagger className="flex flex-wrap gap-12 sm:gap-16">
-          {[
-            {
-              title: "Services",
-              links: ["Industrial Design", "Prototyping", "Advanced CAD", "DFM Review"].map(
-                (item) => ({ label: item, href: "/services" })
-              ),
-            },
-            {
-              title: "Engagements",
-              links: ["Sprint", "Project", "Review"].map((item) => ({
-                label: item,
-                href: "#engagements",
-              })),
-            },
-            {
-              title: "Company",
-              links: [
-                { label: "Clients", href: "#clients" },
-                { label: "Process", href: "#process" },
-                { label: "Contact", href: "#contact" },
-              ],
-            },
-          ].map((column) => (
-            <RevealItem key={column.title}>
-              <div>
-                <div className="mb-4 font-mono text-[10px] uppercase tracking-widest text-white/30">
-                  {column.title}
-                </div>
-                <ul className="flex flex-col gap-2.5">
-                  {column.links.map((item) => (
-                    <li key={item.label}>
-                      <a
-                        href={item.href}
-                        className="text-sm text-white/50 transition hover:text-white"
-                      >
-                        {item.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+          <RevealItem>
+            <div>
+              <div className="mb-4 font-mono text-[10px] uppercase tracking-widest text-white/30">
+                Navigate
               </div>
-            </RevealItem>
-          ))}
+              <ul className="flex flex-col gap-2.5">
+                {footerLinks.map((item) => (
+                  <li key={item.label}>
+                    <FooterLink href={item.href}>{item.label}</FooterLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </RevealItem>
+
+          <RevealItem>
+            <div>
+              <div className="mb-4 font-mono text-[10px] uppercase tracking-widest text-white/30">
+                Contact
+              </div>
+              <ul className="flex flex-col gap-2.5">
+                <li>
+                  <FooterLink href={`mailto:${contactEmail}`}>{contactEmail}</FooterLink>
+                </li>
+                {contactPhone && contactPhoneHref ? (
+                  <li>
+                    <FooterLink href={contactPhoneHref}>{contactPhone}</FooterLink>
+                  </li>
+                ) : null}
+              </ul>
+            </div>
+          </RevealItem>
         </RevealStagger>
       </div>
 

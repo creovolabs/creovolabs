@@ -132,6 +132,8 @@ export default function ServicesPage() {
   const [activeTab, setActiveTab] = useState("s01");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const tabNavRef = useRef<HTMLDivElement>(null);
+  const skipNavScrollRef = useRef(true);
 
   const scrollToSection = useCallback((id: string) => {
     const el = sectionRefs.current[id];
@@ -143,7 +145,9 @@ export default function ServicesPage() {
   }, []);
 
   useEffect(() => {
-    const sections = serviceTabs.map((t) => sectionRefs.current[t.id]).filter(Boolean) as HTMLElement[];
+    const sections = serviceTabs
+      .map((t) => sectionRefs.current[t.id])
+      .filter(Boolean) as HTMLElement[];
     if (!sections.length) return;
 
     const observer = new IntersectionObserver(
@@ -160,6 +164,21 @@ export default function ServicesPage() {
     sections.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (skipNavScrollRef.current) {
+      skipNavScrollRef.current = false;
+      return;
+    }
+
+    const nav = tabNavRef.current;
+    const activeButton = nav?.querySelector<HTMLElement>(`[data-tab-id="${activeTab}"]`);
+    if (!nav || !activeButton) return;
+
+    const targetLeft =
+      activeButton.offsetLeft - nav.clientWidth / 2 + activeButton.offsetWidth / 2;
+    nav.scrollTo({ left: Math.max(0, targetLeft), behavior: "smooth" });
+  }, [activeTab]);
 
   return (
     <>
@@ -217,13 +236,17 @@ export default function ServicesPage() {
         {/* Service tabs */}
         <div className="sticky top-0 z-40 border-b border-[#111111]/[0.07] bg-white">
           <div className="section-container !px-0 sm:!px-0 lg:!px-0">
-            <div className="flex">
+            <div
+              ref={tabNavRef}
+              className="flex overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory lg:overflow-visible"
+            >
               {serviceTabs.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
+                  data-tab-id={tab.id}
                   onClick={() => scrollToSection(tab.id)}
-                  className={`group relative flex flex-1 items-center gap-3 border-r border-[#111111]/[0.07] px-5 py-5 text-left transition-colors last:border-r-0 sm:px-7 ${
+                  className={`group relative flex shrink-0 snap-start items-center gap-3 border-r border-[#111111]/[0.07] px-5 py-5 text-left transition-colors last:border-r-0 sm:px-7 lg:flex-1 ${
                     activeTab === tab.id
                       ? "bg-accent/[0.03] text-[#111111]"
                       : "text-[#111111]/55 hover:bg-accent/[0.03] hover:text-[#111111]"
@@ -232,7 +255,7 @@ export default function ServicesPage() {
                   <span className="font-mono text-[10px] tracking-[0.1em] text-accent/50">
                     {tab.num}
                   </span>
-                  <span className="text-xs font-semibold tracking-tight sm:text-[13px]">
+                  <span className="whitespace-nowrap text-xs font-semibold tracking-tight sm:text-[13px]">
                     {tab.name}
                   </span>
                   <span
@@ -638,7 +661,7 @@ export default function ServicesPage() {
         </section>
 
         {/* FAQ */}
-        <section className="section-pad bg-cream">
+        <section id="faq" className="section-pad bg-cream">
           <div className="section-container grid items-start gap-16 lg:grid-cols-[1fr_1.6fr]">
             <div>
               <SectionLabel>FAQ</SectionLabel>

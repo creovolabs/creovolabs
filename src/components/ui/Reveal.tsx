@@ -3,14 +3,27 @@
 import {
   Children,
   cloneElement,
+  createContext,
   forwardRef,
   isValidElement,
+  useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import type { ReactElement, ReactNode } from "react";
 import { VIEWPORT, EASE_OUT } from "@/lib/motion";
+
+type RevealTrigger = "view" | "mount";
+
+const RevealTriggerContext = createContext<RevealTrigger>("view");
+
+export function RevealMountProvider({ children }: { children: ReactNode }) {
+  return (
+    <RevealTriggerContext.Provider value="mount">{children}</RevealTriggerContext.Provider>
+  );
+}
 
 type RevealVariant = "heading" | "text" | "label" | "default";
 
@@ -42,15 +55,19 @@ type RevealProps = {
   variant?: RevealVariant;
 };
 
-function useCanAnimate() {
-  const prefersReducedMotion = useReducedMotion();
+function useRevealVisible(trigger: RevealTrigger) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: VIEWPORT.amount });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  return { canAnimate: mounted && !prefersReducedMotion };
+  return {
+    ref,
+    visible: trigger === "mount" ? mounted : isInView,
+  };
 }
 
 export default function Reveal({
@@ -59,24 +76,31 @@ export default function Reveal({
   className,
   variant = "default",
 }: RevealProps) {
-  const { canAnimate } = useCanAnimate();
+  const prefersReducedMotion = useReducedMotion();
+  const trigger = useContext(RevealTriggerContext);
+  const { ref, visible } = useRevealVisible(trigger);
 
-  if (!canAnimate) {
-    return <div className={className}>{children}</div>;
+  if (prefersReducedMotion) {
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
   }
 
   const y = Y_OFFSET[variant];
+  const transition = {
+    duration: DURATION[variant],
+    ease: EASE_OUT,
+    delay: BASE_DELAY[variant] + delay,
+  };
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={VIEWPORT}
-      transition={{
-        duration: DURATION[variant],
-        ease: EASE_OUT,
-        delay: BASE_DELAY[variant] + delay,
-      }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y }}
+      transition={transition}
       className={className}
     >
       {children}
@@ -113,22 +137,30 @@ type RevealItemProps = {
 
 /** Child of RevealStagger — fades and slides up with stagger timing */
 export function RevealItem({ children, className, delay = 0 }: RevealItemProps) {
-  const { canAnimate } = useCanAnimate();
+  const prefersReducedMotion = useReducedMotion();
+  const trigger = useContext(RevealTriggerContext);
+  const { ref, visible } = useRevealVisible(trigger);
 
-  if (!canAnimate) {
-    return <div className={className}>{children}</div>;
+  if (prefersReducedMotion) {
+    return (
+      <div ref={ref} className={className}>
+        {children}
+      </div>
+    );
   }
+
+  const transition = {
+    duration: 0.5,
+    ease: EASE_OUT,
+    delay: 0.04 + delay,
+  };
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={VIEWPORT}
-      transition={{
-        duration: 0.5,
-        ease: EASE_OUT,
-        delay: 0.04 + delay,
-      }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+      transition={transition}
       className={className}
     >
       {children}

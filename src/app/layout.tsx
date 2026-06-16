@@ -60,7 +60,7 @@ export default function RootLayout({
         className={`${suse.variable} ${dmMono.variable} min-h-screen overflow-x-hidden bg-cream font-sans text-[#111111] antialiased`}
       >
         <Script id="scroll-to-top" strategy="beforeInteractive">
-          {`if('scrollRestoration' in history)history.scrollRestoration='manual';if(location.hash)history.replaceState(null,'',location.pathname+location.search);scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;`}
+          {`if('scrollRestoration' in history)history.scrollRestoration='manual';if(!location.hash){scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0;}`}
         </Script>
         <ScrollToTop />
         {children}

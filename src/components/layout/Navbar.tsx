@@ -9,7 +9,7 @@ const links = [
   { label: "Services", href: "/services", key: "services" },
   { label: "How We Work", href: "/how-we-work", key: "how-we-work" },
   { label: "Projects", href: "/#process", key: "process" },
-  { label: "About", href: "/#clients", key: "clients" },
+  { label: "About", href: "/about", key: "about" },
 ];
 
 type NavbarProps = {
@@ -136,7 +136,9 @@ export default function Navbar({ activeLink }: NavbarProps) {
       ? "how-we-work"
       : pathname === "/services"
         ? "services"
-        : undefined);
+        : pathname === "/about"
+          ? "about"
+          : undefined);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 

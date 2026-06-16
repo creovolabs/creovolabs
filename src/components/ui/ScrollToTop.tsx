@@ -1,57 +1,30 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
-
-function forceScrollToTop(stripHash = false) {
-  if ("scrollRestoration" in history) {
-    history.scrollRestoration = "manual";
-  }
-
-  if (stripHash && window.location.hash) {
-    window.history.replaceState(
-      null,
-      "",
-      window.location.pathname + window.location.search
-    );
-  }
-
-  window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-}
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { scrollToHash, scrollToTop, syncScrollOnNavigation } from "@/lib/scroll";
 
 export default function ScrollToTop() {
-  const didInit = useRef(false);
+  const pathname = usePathname();
 
-  useLayoutEffect(() => {
-    forceScrollToTop(true);
-  }, []);
+  useEffect(() => syncScrollOnNavigation(), [pathname]);
 
   useEffect(() => {
-    if (didInit.current) return;
-    didInit.current = true;
-
-    forceScrollToTop(true);
-
-    const raf = requestAnimationFrame(() => forceScrollToTop(false));
-    const t1 = window.setTimeout(() => forceScrollToTop(false), 0);
-    const t2 = window.setTimeout(() => forceScrollToTop(false), 50);
-    const t3 = window.setTimeout(() => forceScrollToTop(false), 150);
-
-    const onLoad = () => forceScrollToTop(false);
-    window.addEventListener("load", onLoad);
+    const onHashChange = () => {
+      scrollToHash("smooth");
+    };
 
     const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) forceScrollToTop(true);
+      if (!e.persisted) return;
+      if (window.location.hash) scrollToHash("auto");
+      else scrollToTop();
     };
+
+    window.addEventListener("hashchange", onHashChange);
     window.addEventListener("pageshow", onPageShow);
 
     return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-      window.clearTimeout(t3);
-      window.removeEventListener("load", onLoad);
+      window.removeEventListener("hashchange", onHashChange);
       window.removeEventListener("pageshow", onPageShow);
     };
   }, []);
