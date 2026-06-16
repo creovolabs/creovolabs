@@ -1,0 +1,205 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #111111;
+  --foreground: #ffffff;
+  --cream: #fff7e9;
+  --muted: rgba(17, 17, 17, 0.6);
+  --accent: #ff6600;
+  --surface: #1a1a1a;
+  --border: rgba(17, 17, 17, 0.08);
+  --section-gutter: 1.5rem;
+  --section-max: 80rem;
+  --section-inset: max(
+    var(--section-gutter),
+    calc((100vw - var(--section-max)) / 2 + var(--section-gutter))
+  );
+  --process-shadow-bleed: 2.5rem;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --section-gutter: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --section-gutter: 3rem;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: auto;
+}
+
+html,
+body {
+  overscroll-behavior-y: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  color: #111111;
+  background: var(--cream);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(255, 102, 0, 0.35);
+  color: #fff;
+}
+
+@layer components {
+  .section-container {
+    @apply mx-auto max-w-7xl px-6 sm:px-10 lg:px-12;
+  }
+
+  .section-pad {
+    @apply py-24 md:py-32;
+  }
+
+  .section-heading {
+    @apply text-[clamp(2rem,3.5vw,3.25rem)] font-semibold leading-[1.1] tracking-tight text-[#111111];
+  }
+
+  .section-heading em {
+    @apply font-normal not-italic text-[#111111]/70;
+  }
+
+  .section-body {
+    @apply text-base leading-relaxed text-[#111111]/60 md:text-[17px];
+  }
+
+  .card {
+    @apply rounded-2xl border border-[#111111]/[0.06] bg-white shadow-[0_2px_24px_rgba(17,17,17,0.04)];
+    @apply transition-[transform,box-shadow,border-color] duration-300 ease-out will-change-transform;
+    transform: translateZ(0);
+  }
+
+  .card:hover {
+    @apply -translate-y-1 scale-[1.02] border-[#ff6600]/20 shadow-[0_12px_48px_rgba(255,102,0,0.1)];
+  }
+
+  .card-dark {
+    @apply rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-[0_4px_32px_rgba(0,0,0,0.2)];
+    @apply transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out will-change-transform;
+    transform: translateZ(0);
+  }
+
+  .card-dark:hover {
+    @apply -translate-y-1 scale-[1.02] border-[#ff6600]/25 bg-white/[0.05] shadow-[0_12px_48px_rgba(255,102,0,0.12)];
+  }
+
+  /* Full-viewport bleed — clip edge is the screen, not the content column */
+  .process-scroll-outer {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    overflow: visible;
+  }
+
+  .process-scroll-wrap {
+    @apply w-full snap-x snap-proximity overflow-x-auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .process-scroll-wrap::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* padding-left = heading inset; cards scroll through this gutter when moving left */
+  .process-scroll-track {
+    @apply flex w-max items-stretch;
+    padding-left: var(--section-inset);
+    padding-right: var(--process-shadow-bleed);
+  }
+
+  /* Shadow room lives inside the shell box — no overflow:hidden anywhere */
+  .process-card-shell {
+    @apply shrink-0 snap-start overflow-visible;
+    padding: var(--process-shadow-bleed) 0.75rem;
+  }
+
+  /* Pull shadow room into the track gutter without shifting card 01 off the inset line */
+  .process-card-shell:first-child {
+    margin-left: calc(var(--process-shadow-bleed) * -1);
+    padding-left: var(--process-shadow-bleed);
+  }
+
+  .process-card-shell:last-child {
+    margin-right: calc(var(--process-shadow-bleed) * -1);
+    padding-right: var(--process-shadow-bleed);
+  }
+
+  .process-card {
+    @apply flex h-[22rem] w-[18.5rem] flex-col rounded-2xl border border-[#111111]/[0.06] bg-white p-8 sm:w-[20rem];
+    box-shadow: 0 4px 24px rgba(17, 17, 17, 0.07);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .process-card:hover {
+    @apply border-[#ff6600]/20;
+    box-shadow: 0 8px 32px rgba(17, 17, 17, 0.1);
+  }
+
+  .tag {
+    @apply rounded-full border border-[#ff6600]/25 bg-[#fff7e9] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#b34d00];
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-[0_4px_20px_rgba(255,102,0,0.35)] transition hover:-translate-y-0.5 hover:bg-[#e55c00] hover:shadow-[0_6px_28px_rgba(255,102,0,0.45)];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full bg-[#111111] px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-black;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-1.5 text-sm font-medium text-white/80 transition hover:text-accent;
+  }
+
+  .nav-pill {
+    @apply rounded-full border border-white/20 bg-white/95 shadow-[0_8px_40px_rgba(0,0,0,0.12)] backdrop-blur-md;
+  }
+
+  .input-pill {
+    @apply rounded-full border border-white/25 bg-black/50 px-5 py-3 text-sm text-white backdrop-blur-md outline-none transition placeholder:text-white/40 focus:border-[#ff6600] focus:ring-2 focus:ring-[#ff6600]/30;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
